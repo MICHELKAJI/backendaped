@@ -12,3 +12,40 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Post {
+  idPost        Int           @id @default(autoincrement())
+  title     String
+  content   String?
+  sections  PostSection[] // Relation avec les sections de contenu (texte, images, etc.)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+}
+
+// Modèle de section de contenu pour structurer les articles
+model PostSection {
+  idPostSection        Int       @id @default(autoincrement())
+  postId    Int
+  post      Post      @relation(fields: [postId], references: [idPost]) // Relation avec l'article
+  content   String  @db.VarChar(800)   // Le contenu (texte, lien d'image, sous-titre)
+}
+
+model NewsLetter{
+  idNewsLetter    Int @id @default(autoincrement())
+  mail            String
+}
+
+model Evenement {
+  idEvenement Int @id @default(autoincrement())
+  title        String
+  content      String @db.VarChar(800)
+  image        String
+  date         String
+  }
+model Donation {
+  idDonateur Int @id @default(autoincrement())
+  nom        String
+  tel        String
+  mail       String
+  ville      String
+}
