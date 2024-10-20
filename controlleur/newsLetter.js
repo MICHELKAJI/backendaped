@@ -17,3 +17,42 @@ exports.allNews = async (req, res) => {
     await datas.$disconnect();
   }
 };
+
+exports.newsCreate = (req, res, next)=> {
+
+    const { mail } = req.body;
+   
+       datas.newsLetter.create({
+           data: {
+            mail: mail
+           },
+       })
+           .then((data) => {
+               res.status(201).send(data)
+           })
+           .catch((error) => {
+               res.status(500).send({
+                   message: error.message || 'Some error occurred while creating the post',
+               })
+           })
+   };
+
+   exports.newsdelete =(req, res, next)=> {
+    const { id } = req.params
+
+    datas.newsLetter.delete({
+        where: {
+            idNewsLetter: parseInt(id),
+        },
+    })
+        .then(() => {
+            res.status(200).send({
+                message: 'Mail was deleted successfully',
+            })
+        })
+        .catch((error) => {
+            res.status(500).send({
+                message: error.message || `Some error occurred while deleting the post with id=${id}`,
+            })
+        })
+}

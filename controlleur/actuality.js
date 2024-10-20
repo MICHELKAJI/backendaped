@@ -1,10 +1,10 @@
 const { PrismaClient } = require('@prisma/client');
 const datas = new PrismaClient();
 
-exports.allSectionPost = async (req, res) => {
+exports.allActuality = async (req, res) => {
   try {
     // Récupère tous les posts
-    const data = await datas.postSection.findMany({include: {post: true}});
+    const data = await datas.actuality.findMany();
     // Envoie les données au client
     res.status(200).json(data);
   } catch (error) {
@@ -18,18 +18,16 @@ exports.allSectionPost = async (req, res) => {
   }
 };
 
-exports.createPostSection = (req, res, next)=> {
+exports.actualityCreate = (req, res, next)=> {
 
-  const { postId, title, content } = req.body;
-
-  const urlImage = req.file.path;
+  const { title, content, image } = req.body;
+//   const urlImage = req.file.path;
  
-     datas.postSection.create({
+     datas.actuality.create({
          data: {
-          postId:postId,
-          title: title,
-          content:content,
-          image:urlImage
+             title:title,
+             content: content,
+             image: image
          },
      })
          .then((data) => {
@@ -41,25 +39,23 @@ exports.createPostSection = (req, res, next)=> {
              })
          })
  };
-
- exports.postSectionUpdate = (req, res, next)=> {
+ exports.actualityUpdate = (req, res, next)=> {
   const { id } = req.params
-  const {postId, title, content, image } = req.body;
+  const {title, content, image } = req.body;
   
-  datas.postSection.update({
+  datas.actuality.update({
       where: {
-        idPostSection: parseInt(id),
+        idActuality: parseInt(id),
       },
       data: {
-        postId:postId,
-          title:title,
-          content:content,
-          image:image
+             title:title,
+             content: content,
+             image: image
       },
   })
       .then(() => {
           res.status(200).send({
-              message: 'Postsection was updated successfully',
+              message: 'Donate was updated successfully',
           })
       })
       .catch((error) => {
@@ -69,17 +65,17 @@ exports.createPostSection = (req, res, next)=> {
       })
 };
 
-exports.postSectionDelete =(req, res, next)=> {
+exports.actualityDelete =(req, res, next)=> {
   const { id } = req.params
 
-  datas.postSection.delete({
+  datas.actuality.delete({
       where: {
-          idPostSection: parseInt(id),
+        idActuality: parseInt(id),
       },
   })
       .then(() => {
           res.status(200).send({
-              message: 'PostSection was deleted successfully',
+              message: 'Donate was deleted successfully',
           })
       })
       .catch((error) => {
@@ -88,20 +84,21 @@ exports.postSectionDelete =(req, res, next)=> {
           })
       })
 };
-exports.getOnePosteSection = (req, res, next)=> {
-  const { id } = req.params
 
-  datas.postSection.findUnique({ where: { idPostSection: parseInt(id) } })
-      .then((data) => {
-          data
-              ? res.status(200).send(data)
-              : res.status(404).send({
-                  message: `Cannot find post with id=${id}`,
-              })
-      })
-      .catch((error) => {
-          res.status(500).send({
-              message: error.message || `Some error occurred while retrieving the post with id=${id}`,
-          })
-      })
+exports.getOneActuality = (req, res, next)=> {
+    const { id } = req.params
+
+    datas.actuality.findUnique({ where: { idActuality: parseInt(id) } })
+        .then((data) => {
+            data
+                ? res.status(200).send(data)
+                : res.status(404).send({
+                    message: `Cannot find post with id=${id}`,
+                })
+        })
+        .catch((error) => {
+            res.status(500).send({
+                message: error.message || `Some error occurred while retrieving the post with id=${id}`,
+            })
+        })
 };

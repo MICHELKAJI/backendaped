@@ -27,12 +27,14 @@ model PostSection {
   idPostSection        Int       @id @default(autoincrement())
   postId    Int
   post      Post      @relation(fields: [postId], references: [idPost]) // Relation avec l'article
+  title     String
   content   String  @db.VarChar(800)   // Le contenu (texte, lien d'image, sous-titre)
+  image     String  
 }
 
 model NewsLetter{
   idNewsLetter    Int @id @default(autoincrement())
-  mail            String
+  mail            String @unique
 }
 
 model Evenement {
@@ -48,4 +50,12 @@ model Donation {
   tel        String
   mail       String
   ville      String
+}
+
+model Actuality {
+  idActuality    Int @id @default(autoincrement())
+  title          String
+  content        String @db.VarChar(500)
+  image          String
+  date           DateTime @default(now())
 }

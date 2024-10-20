@@ -17,3 +17,68 @@ exports.allblos = async (req, res) => {
     await datas.$disconnect();
   }
 };
+
+exports.createPost = (req, res, next)=> {
+
+  const { title, content } = req.body;
+ 
+     datas.post.create({
+         data: {
+          title: title,
+          content: content
+         },
+     })
+         .then((data) => {
+             res.status(201).send(data)
+         })
+         .catch((error) => {
+             res.status(500).send({
+                 message: error.message || 'Some error occurred while creating the post',
+             })
+         })
+ };
+ 
+ exports.postUpdate = (req, res, next)=> {
+  const { id } = req.params
+  const {title, content } = req.body;
+  
+  datas.post.update({
+      where: {
+        idPost: parseInt(id),
+      },
+      data: {
+        title: title,
+        content: content
+      },
+  })
+      .then(() => {
+          res.status(200).send({
+              message: 'Post was updated successfully',
+          })
+      })
+      .catch((error) => {
+          res.status(500).send({
+              message: error.message || `Some error occurred while updating the post with id=${id}`,
+          })
+      })
+};
+
+exports.postDelete =(req, res, next)=> {
+  const { id } = req.params
+
+  datas.post.delete({
+      where: {
+          idPost: parseInt(id),
+      },
+  })
+      .then(() => {
+          res.status(200).send({
+              message: 'Post was deleted successfully',
+          })
+      })
+      .catch((error) => {
+          res.status(500).send({
+              message: error.message || `Some error occurred while deleting the post with id=${id}`,
+          })
+      })
+}
