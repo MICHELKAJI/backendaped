@@ -18,29 +18,86 @@ exports.allSectionPost = async (req, res) => {
   }
 };
 
-exports.createPostSection = (req, res, next)=> {
+// exports.createPostSection = (req, res, next)=> {
 
-  const { postId, title, content } = req.body;
+//   const { postId, title, content, image} = req.body;
 
-  const urlImage = req.file.path;
- 
-     datas.postSection.create({
-         data: {
-          postId:postId,
-          title: title,
-          content:content,
-          image:urlImage
-         },
-     })
-         .then((data) => {
-             res.status(201).send(data)
-         })
-         .catch((error) => {
-             res.status(500).send({
-                 message: error.message || 'Some error occurred while creating the post',
-             })
-         })
- };
+//      datas.postSection.create({
+//          data: {
+//           postId:parseInt(postId),
+//           title: title,
+//           content:content,
+//           image:image
+//          },
+//      })
+//          .then((data) => {
+//              res.status(201).send(data)
+//          })
+//          .catch((error) => {
+//              res.status(500).send({
+//                  message: error.message || 'Some error occurred while creating the post',
+//              })
+//          })
+//  };
+
+exports.createPostSection = (req, res, next) => {
+    console.log('--- Début de la requête ---');
+    
+    // Vérifier si req.body est un objet FormData
+    const formData = req.body;
+    // const urlImage = req.file ? req.file.path : null;
+    
+    // Extraire les données du FormData
+    const postId = parseInt(formData.postId);
+    const title = formData.title;
+    const content = formData.content;
+    const image = formData.image;
+  
+    // Validation des entrées
+    if (!title || !content) {
+      console.log('Erreur: Titre ou contenu manquant');
+      return res.status(400).json({
+        message: 'Le titre et le contenu sont obligatoires',
+      });
+    }
+  
+    // Vérification de l'image
+    if (!image) {
+      console.log('Erreur: Image manquante');
+      return res.status(400).json({
+        message: 'Une image est requise pour créer une actualité',
+      });
+    }
+
+    // Création de l'actualité dans la base avec async/await
+    try {
+      console.log('Tentative de création dans la base de données...');
+      datas.postSection
+        .create({
+          data: {
+            postId,
+            title,
+            content,
+            image
+          },
+        })
+        .then((data) => {
+          console.log('Création réussie:', data);
+          res.status(201).json({
+            message: 'Actualité créée avec succès',
+            actuality: data,
+          });
+        });
+    } catch (error) {
+      console.error('Erreur détaillée lors de la création:', error);
+      console.error('Stack trace:', error.stack);
+      res.status(500).json({
+        message: 'Une erreur est survenue lors de la création de l\'poste section',
+        error: error.message
+      });
+    }
+};
+  
 
  exports.postSectionUpdate = (req, res, next)=> {
   const { id } = req.params

@@ -17,6 +17,7 @@ model Post {
   idPost        Int           @id @default(autoincrement())
   title     String
   content   String?
+  type      String
   sections  PostSection[] // Relation avec les sections de contenu (texte, images, etc.)
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
@@ -35,6 +36,7 @@ model PostSection {
 model NewsLetter{
   idNewsLetter    Int @id @default(autoincrement())
   mail            String @unique
+  date            DateTime @default(now())
 }
 
 model Evenement {

@@ -8,6 +8,7 @@ const routeactuality = require("./routes/actuality");
 
 
 app.use(express.json());
+app.use('/images',express.static('images'));
 
 
 app.use((req, res, next) => {

@@ -20,12 +20,14 @@ exports.allblos = async (req, res) => {
 
 exports.createPost = (req, res, next)=> {
 
-  const { title, content } = req.body;
+  const { title, content, type } = req.body;
  
      datas.post.create({
          data: {
           title: title,
-          content: content
+          content: content,
+          type: type,
+
          },
      })
          .then((data) => {
@@ -40,7 +42,7 @@ exports.createPost = (req, res, next)=> {
  
  exports.postUpdate = (req, res, next)=> {
   const { id } = req.params
-  const {title, content } = req.body;
+  const {title, content, type } = req.body;
   
   datas.post.update({
       where: {
@@ -48,7 +50,8 @@ exports.createPost = (req, res, next)=> {
       },
       data: {
         title: title,
-        content: content
+        content: content,
+        type: type
       },
   })
       .then(() => {
@@ -81,4 +84,22 @@ exports.postDelete =(req, res, next)=> {
               message: error.message || `Some error occurred while deleting the post with id=${id}`,
           })
       })
-}
+};
+
+exports.getOnePost = (req, res, next)=> {
+    const { id } = req.params
+  
+    datas.post.findUnique({ where: { idPost: parseInt(id) } })
+        .then((data) => {
+            data
+                ? res.status(200).send(data)
+                : res.status(404).send({
+                    message: `Cannot find post with id=${id}`,
+                })
+        })
+        .catch((error) => {
+            res.status(500).send({
+                message: error.message || `Some error occurred while retrieving the post with id=${id}`,
+            })
+        })
+  };

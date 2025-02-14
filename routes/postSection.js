@@ -6,7 +6,7 @@ routes.get('/', evenement.allSectionPost);
 routes.post('/', evenement.createPostSection);
 routes.put('/:id', evenement.postSectionUpdate);
 routes.delete('/:id', evenement.postSectionDelete);
-routes.get('/id:', evenement.getOnePosteSection)
+routes.get('/:id', evenement.getOnePosteSection)
 
 module.exports = routes;
 
