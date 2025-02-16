@@ -1,5 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const datas = new PrismaClient();
+const upload = require('../middleware/multer'); // Assure-toi d'avoir bien configuré Multer
+const util = require('util');
 
 exports.allActuality = async (req, res) => {
   try {
@@ -18,62 +20,41 @@ exports.allActuality = async (req, res) => {
   }
 };
 
-exports.actualityCreate = (req, res, next) => {
-    console.log('--- Début de la requête ---');
-    
-    // Vérifier si req.body est un objet FormData
-    const formData = req.body;
-    // const urlImage = req.file ? req.file.path : null;
-    
-    // Extraire les données du FormData
-    const title = formData.title;
-    const content = formData.content;
-    const image = formData.image;
-  
-    // Validation des entrées
-    if (!title || !content) {
-      console.log('Erreur: Titre ou contenu manquant');
-      return res.status(400).json({
-        message: 'Le titre et le contenu sont obligatoires',
-      });
-    }
-  
-    // Vérification de l'image
-    if (!image) {
-      console.log('Erreur: Image manquante');
-      return res.status(400).json({
-        message: 'Une image est requise pour créer une actualité',
-      });
+exports.actualityCreate = async (req, res) => {
+  try {
+    // Exécuter Multer via promisify pour éviter les callbacks
+    const uploadAsync = util.promisify(upload);
+    await uploadAsync(req, res);
+
+    // Vérifier les champs requis
+    if (!req.body.title || !req.body.content) {
+      return res.status(400).json({ message: "Titre et contenu requis." });
     }
 
-    // Création de l'actualité dans la base avec async/await
-    try {
-      console.log('Tentative de création dans la base de données...');
-      datas.actuality
-        .create({
-          data: {
-            title,
-            content,
-            image
-          },
-        })
-        .then((data) => {
-          console.log('Création réussie:', data);
-          res.status(201).json({
-            message: 'Actualité créée avec succès',
-            actuality: data,
-          });
-        });
-    } catch (error) {
-      console.error('Erreur détaillée lors de la création:', error);
-      console.error('Stack trace:', error.stack);
-      res.status(500).json({
-        message: 'Une erreur est survenue lors de la création de l\'actualité',
-        error: error.message
-      });
+    // Vérifier si le fichier est bien uploadé
+    if (!req.file) {
+      return res.status(400).json({ message: "Le logo est requis." });
     }
+
+    // URL de l'image envoyée vers Cloudinary
+    const urlLogo = req.file.path;
+
+    // Création du post dans la base de données
+    const post = await datas.actuality.create({
+      data: {
+        title: req.body.title,
+        content: req.body.content,
+        image: urlLogo,
+      },
+    });
+
+    return res.status(201).json({ message: "Post créé avec succès !", post });
+  } catch (error) {
+    console.error("Erreur :", error);
+    return res.status(500).json({ message: "Erreur lors de la création du post", error: error.message });
+  }
 };
-  
+
 
 exports.actualityUpdate = (req, res, next)=> {
   const { id } = req.params

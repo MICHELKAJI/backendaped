@@ -1,25 +1,37 @@
 const multer = require('multer');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('cloudinary').v2;
+require('dotenv').config();
 
-const storage = multer.diskStorage({
-  destination: (req, file, callback) => {
-    callback(null, './images');
-  },
-  filename: (req, file, callback) => {
-    callback(null, `${Date.now()}_${file.originalname}`);
+// Configuration de Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Configuration du stockage avec Cloudinary
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'Images',
+    format: async (req, file) => 'png',
+    public_id: (req, file) => `${Date.now()}_${file.originalname.split('.')[0]}`,
+    resource_type: 'image', // 🔥 Ajouté pour supporter de plus gros fichiers
+    transformation: [{ quality: "auto", fetch_format: "auto" }], // 🔥 Compression automatique
   },
 });
 
-const upload = multer({ storage }).single('image');
-
-module.exports = (req, res, next) => {
-  upload(req, res, (err) => {
-    if (err instanceof multer.MulterError) {
-      console.error('Multer error:', err);
-      return res.status(400).json({ message: 'Erreur liée à l\'upload', error: err.message });
-    } else if (err) {
-      console.error('Autre erreur:', err);
-      return res.status(500).json({ message: 'Erreur serveur', error: err.message });
+// Middleware Multer avec une taille max de 20 Mo
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 20 * 1024 * 1024 }, // 🔥 Augmenté à 20 Mo
+  fileFilter: (req, file, cb) => {
+    if (!file.mimetype.startsWith('image/')) {
+      return cb(new Error('Seuls les fichiers image sont autorisés !'), false);
     }
-    next();
-  });
-};
+    cb(null, true);
+  }
+}).single('image');
+
+module.exports = upload;
