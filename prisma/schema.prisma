@@ -27,7 +27,7 @@ model Post {
 model PostSection {
   idPostSection        Int       @id @default(autoincrement())
   postId    Int
-  post      Post      @relation(fields: [postId], references: [idPost]) // Relation avec l'article
+  post      Post      @relation(fields: [postId], references: [idPost], onDelete: Cascade) // Relation avec l'article
   title     String
   content   String  @db.VarChar(800)   // Le contenu (texte, lien d'image, sous-titre)
   image     String  
@@ -57,7 +57,7 @@ model Donation {
 model Actuality {
   idActuality    Int @id @default(autoincrement())
   title          String
-  content        String @db.VarChar(500)
+  content        String @db.VarChar(5000)
   image          String
   date           DateTime @default(now())
 }

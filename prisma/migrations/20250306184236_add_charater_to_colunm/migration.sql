@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Actuality" ALTER COLUMN "content" SET DATA TYPE VARCHAR(5000);
